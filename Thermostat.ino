@@ -3,19 +3,17 @@
  * Requires Seeed Grove shield. Attach Temp sensor on A0, LCD on any I2C port
  */
 
-#include <Wire.h>
+#include "rgb_lcd.h"
 #include "TemperatureSensor.h"
 #include "RotationSensor.h"
-#include "rgb_lcd.h"
+#include "CircularBuffer.h"
 
 
 
 rgb_lcd lcd;
-const int colorR = 0;
-const int colorG = 0;
-const int colorB = 50;
 TemperatureSensor temperatureSensor(A0);
 RotationSensor rotationSensor(A1);
+CircularBuffer<float> circularBuffer(100);
 
 
 
@@ -23,19 +21,18 @@ void setup()
 {
     Serial.begin(9600);
     
-    // set up the LCD's number of columns and rows:
+    // Set up the LCD screen's number of columns and rows:
     lcd.begin(16, 2);
     
-    lcd.setRGB(colorR, colorG, colorB);
-    
-    delay(1000);
+    delay(100);
 }
 
 
 
 void loop()
 {
-    float temperature = temperatureSensor.sense();
+    circularBuffer.push_back(temperatureSensor.sense());
+    float temperature = circularBuffer.getMean();
     float setPoint = getSetpoint();
 
     if (temperature < setPoint)
