@@ -32,10 +32,19 @@ void setup()
 void loop()
 {
     circularBuffer.push_back(temperatureSensor.sense());
-    float temperature = circularBuffer.getMean();
+    float currTemperature = circularBuffer.getMean();
     float setPoint = getSetpoint();
+    float deadbandSize = 2.0;
+    float minThreshold = setPoint - deadbandSize/2;
+    float maxThreshold = setPoint + deadbandSize/2;
 
-    if (temperature < setPoint)
+    if (minThreshold < currTemperature && currTemperature < maxThreshold)
+    {
+        // Do nothing if currTemperature is very close to setPoint. This prevents rapid
+        // flipping of the relay if currTemperature fluctuates around the setPoint.
+        lcd.setRGB(255, 0, 255);
+    }
+    else if (currTemperature <= minThreshold)
     {
         lcd.setRGB(255, 0, 0);
         relay.on();
@@ -47,13 +56,13 @@ void loop()
     }
 
     lcd.setCursor(0, 0);
-    lcd.print("Desired: ");
-    lcd.print(setPoint);
+    lcd.print("Current: ");
+    lcd.print(currTemperature);
     lcd.print(" F");
 
     lcd.setCursor(0, 1);
-    lcd.print("Current: ");
-    lcd.print(temperature);
+    lcd.print("Desired: ");
+    lcd.print(setPoint);
     lcd.print(" F");
     delay(100);
 }
