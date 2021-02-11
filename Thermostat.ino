@@ -7,6 +7,7 @@
 #include "TemperatureSensor.h"
 #include "RotationSensor.h"
 #include "CircularBuffer.h"
+#include "Relay.h"
 
 
 
@@ -14,6 +15,7 @@ rgb_lcd lcd;
 TemperatureSensor temperatureSensor(A0);
 RotationSensor rotationSensor(A1);
 CircularBuffer<float> circularBuffer(100);
+Relay relay(13);
 
 
 
@@ -23,8 +25,6 @@ void setup()
     
     // Set up the LCD screen's number of columns and rows:
     lcd.begin(16, 2);
-    
-    delay(100);
 }
 
 
@@ -38,10 +38,12 @@ void loop()
     if (temperature < setPoint)
     {
         lcd.setRGB(255, 0, 0);
+        relay.on();
     }
     else
     {
         lcd.setRGB(0, 0, 255);
+        relay.off();
     }
 
     lcd.setCursor(0, 0);
