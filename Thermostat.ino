@@ -6,6 +6,7 @@
 #include "rgb_lcd.h"
 #include "TemperatureSensor.h"
 #include "RotationSensor.h"
+#include "LightSensor.h"
 #include "CircularBuffer.h"
 #include "Relay.h"
 
@@ -14,6 +15,7 @@
 rgb_lcd lcd;
 TemperatureSensor temperatureSensor(A0);
 RotationSensor rotationSensor(A1);
+LightSensor lightSensor(A2);
 CircularBuffer<float> circularBuffer(100);
 Relay relay(13);
 
@@ -38,20 +40,22 @@ void loop()
     float minThreshold = setPoint - deadbandSize/2;
     float maxThreshold = setPoint + deadbandSize/2;
 
+    float lightLevel = lightSensor.sense();
+
     if (minThreshold < currTemperature && currTemperature < maxThreshold)
     {
         // Do nothing if currTemperature is very close to setPoint. This prevents rapid
         // flipping of the relay if currTemperature fluctuates around the setPoint.
-        lcd.setRGB(255, 0, 255);
+        lcd.setRGB(255*lightLevel, 0, 255*lightLevel);
     }
     else if (currTemperature <= minThreshold)
     {
-        lcd.setRGB(255, 0, 0);
+        lcd.setRGB(255*lightLevel, 0, 0);
         relay.on();
     }
     else
     {
-        lcd.setRGB(0, 0, 255);
+        lcd.setRGB(0, 0, 255*lightLevel);
         relay.off();
     }
 
