@@ -1,6 +1,8 @@
 /*
- * Detects temperature and displays it to LCD screen.
- * Requires Seeed Grove shield. Attach Temp sensor on A0, LCD on any I2C port
+ * Maintains set temperature and displays it to LCD screen.
+ *
+ * Requires Seeed Grove shield. Attach temperature sensor on A0,
+ * potentiometer on A1, light sensor on A2, LCD screen on any I2C port
  */
 
 #include "rgb_lcd.h"
@@ -14,7 +16,7 @@
 
 rgb_lcd lcd;
 TemperatureSensor temperatureSensor(A0);
-RotationSensor rotationSensor(A1);
+RotationSensor rotationSensor(A1, RotationSensor::INCREMENT_CW);
 LightSensor lightSensor(A2);
 CircularBuffer<float> circularBuffer(100);
 Relay relay(13);
@@ -45,7 +47,7 @@ void loop()
     if (minThreshold < currTemperature && currTemperature < maxThreshold)
     {
         // Do nothing if currTemperature is very close to setPoint. This prevents rapid
-        // flipping of the relay if currTemperature fluctuates around the setPoint.
+        // flipping of the relay if currTemperature fluctuates around setPoint.
         lcd.setRGB(255*lightLevel, 0, 255*lightLevel);
     }
     else if (currTemperature <= minThreshold)
