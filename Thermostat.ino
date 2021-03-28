@@ -41,8 +41,13 @@ void loop()
     float deadbandSize = 2.0;
     float minThreshold = setPoint - deadbandSize/2;
     float maxThreshold = setPoint + deadbandSize/2;
+    float minLightLevel = 0;
 
     float lightLevel = lightSensor.sense();
+    if (lightLevel < minLightLevel)
+    {
+        lightLevel = minLightLevel;
+    }
 
     if (minThreshold < currTemperature && currTemperature < maxThreshold)
     {
